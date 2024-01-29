@@ -1,0 +1,39 @@
+#cloud-config
+
+hostname: my-rancheros
+ssh_authorized_keys:
+  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCSw8mgqeLUDCd9AweUY4boiEspDELoQGuu4ek6QTOoZa5Rv/eg/RZoobIyDOhoRDnZ/dZSq3IazU42VD++c1ABhdoS1swoi2fWYka/N93X1GN8GgJf69AqKQCnFDDVtqeUh5Y6E05U+cxLvEUUddnTNTKnKavHSEoOnza4BX9kPn23W268StjjegEBupr1e5FGYqU3u8ojVNSEGJBWU1DnS1W8KiZ7zAo0MWEtiogaMaNax+r1qKrJMotHDOKW5MzvTXmpq4ZmaQb1ng80LcSvPwK3w3VQySqt9dSsL2Qgu920XADfClkCHOnxopXQGhzrpQpzbPFHIICKXb8Swjf/ rsa-key-20240129
+
+users:
+  - name: rancher
+    ssh-authorized-keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCSw8mgqeLUDCd9AweUY4boiEspDELoQGuu4ek6QTOoZa5Rv/eg/RZoobIyDOhoRDnZ/dZSq3IazU42VD++c1ABhdoS1swoi2fWYka/N93X1GN8GgJf69AqKQCnFDDVtqeUh5Y6E05U+cxLvEUUddnTNTKnKavHSEoOnza4BX9kPn23W268StjjegEBupr1e5FGYqU3u8ojVNSEGJBWU1DnS1W8KiZ7zAo0MWEtiogaMaNax+r1qKrJMotHDOKW5MzvTXmpq4ZmaQb1ng80LcSvPwK3w3VQySqt9dSsL2Qgu920XADfClkCHOnxopXQGhzrpQpzbPFHIICKXb8Swjf/ rsa-key-20240129
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: [sudo, docker]
+
+write_files:
+  - content: |
+      my_file_content
+    owner: rancher:rancher
+    path: /etc/users_access
+    permissions: '0644'
+
+rancher:
+  network:
+    interfaces:
+      wlan0:
+        dhcp: false
+        address: 192.168.100.109/24
+        gateway: 192.168.100.1
+        wifi_network: my.t-J4f8
+        wifi_key: Deep03524@
+      eth0:
+        dhcp: false
+    dns:
+      nameservers:
+        - 8.8.8.8
+        - 8.8.4.4
+
+# Running Portainer container on system start
+runcmd:
+  - docker run -d -p 9000:9000 --restart=always --name portainer -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce
